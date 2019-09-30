@@ -12,7 +12,7 @@ import numpy
 import tensorflow as tf
 from keras import backend
 
-backend.set_image_dim_ordering('tf')
+#backend.set_image_dim_ordering('tf')
 
 class Recognizer(object):
     

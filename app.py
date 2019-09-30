@@ -68,8 +68,6 @@ class MainGUI(QWidget):
         self.btn_conn_style_0 = 'QPushButton {background-color: #00a86c; border: none; color: #ffffff; font-family: ubuntu, arial; font-size: 16px;}'
         self.btn_conn_style_1 = 'QPushButton {background-color: #ff6464; border: none; color: #ffffff; font-family: ubuntu, arial; font-size: 16px;}'
         self.btn_conn.setStyleSheet(self.btn_conn_style_0)
-#        self.btn_cal.setIcon(QIcon('assets/power.png'))
-#        self.btn_cal.setIconSize(QSize(20, 20))
         
         # -- connect calibration button --
         self.btn_cal = QPushButton()

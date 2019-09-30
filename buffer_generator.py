@@ -26,7 +26,7 @@ def generate_buffer_v1(points, save_dir, index, padding=20, line_width=15):
             cv2.line(image, tuple(point_subset[j]), tuple(point_subset[j+1]),
                      0, line_width, cv2.LINE_AA)
             
-        cv2.imwrite(save_dir + f'/{index}_{i}.jpg', working_copy)
+        cv2.imwrite(save_dir + '/{}_{}.jpg'.format(index, i), working_copy)
 
 def generate_buffer_v3(points, save_dir, index, padding=30, line_width=15):
     assert type(points) is numpy.ndarray and len(points) > 1 and points.shape[1] == 2
@@ -41,7 +41,7 @@ def generate_buffer_v3(points, save_dir, index, padding=30, line_width=15):
         for j in range(len(point_subset) - 1):
             cv2.line(image, tuple(point_subset[j]), tuple(point_subset[j+1]), 0, line_width, cv2.LINE_AA)
             
-        cv2.imwrite(save_dir + f'/{index}_{i}.jpg', image)
+        cv2.imwrite(save_dir + '/{}_{}.jpg'.format(index, i), image)
 
 def generate_segmented_data(points, index, i, dump_name, save_dir, padding=30, line_width=15):
     points = points[index : (index + i) + 1]
@@ -52,9 +52,9 @@ def generate_segmented_data(points, index, i, dump_name, save_dir, padding=30, l
     image = numpy.ones((int(h) + 2 * padding, int(w) + 2 * padding), numpy.uint8) * 255
     for j in range(len(points) - 1):
         cv2.line(image, tuple(point_subset[j]), tuple(point_subset[j+1]), 0, line_width, cv2.LINE_AA)
-    cv2.imwrite(save_dir + f'/{dump_name}_{index}_{i}.jpg', image)
+    cv2.imwrite(save_dir + '/{}_{}_{}.jpg'.format(dump_name, index, i), image)
     
-    numpy.save(save_dir + f'/{dump_name}_{index}_{i}.npy', points)
+    numpy.save(save_dir + '/{}_{}_{}.npy'.format(dump_name, index, i), points)
 
 def generate(points, save_dir, index=0, buffer_size=50):
     points = points[index:(index + buffer_size)]

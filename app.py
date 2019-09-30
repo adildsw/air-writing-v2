@@ -33,6 +33,7 @@ class MainGUI(QWidget):
     # ~~~~~~~~ constructor ~~~~~~~~
     def __init__(self):
         super().__init__()
+        self.jsonConfig()
         self.init_pipeline()
         self.init_UI()
         
@@ -49,7 +50,6 @@ class MainGUI(QWidget):
     def init_UI(self):
         self.configColor = (200, 110, 0)
         self.configColor = self.configColor[::-1]
-        self.jsonConfig()
         
         self.result_main_label = 'Predicted Value(s): NA'
         self.result_alt1_label = 'Alternate Value(s) #1: NA'

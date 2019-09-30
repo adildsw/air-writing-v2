@@ -1,0 +1,4 @@
+generated_data/
+__pycache__
+
+config.json

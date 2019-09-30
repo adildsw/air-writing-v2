@@ -88,11 +88,10 @@ class Pipeline(object):
         return mask
     
     def _marker_tip_identification(self, mask):
-        if self._opencv_version == 2:
+        if self._opencv_version == 2 or self._opencv_version == 4:
             contours = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[0]
         else:
             contours = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[1]
-        contours = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[0]
         
         if contours and len(contours) > 0:
             contour_max = sorted(contours, key = cv2.contourArea, reverse = True)[0]

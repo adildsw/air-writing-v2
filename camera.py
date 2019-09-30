@@ -18,6 +18,7 @@ class VideoStream(object):
     # ~~~~~~~~ constructor ~~~~~~~~
     def __init__(self, src=0):
         self.video = cv2.VideoCapture(src)
+        self.setFrameSize((640, 480))
         
         return
     

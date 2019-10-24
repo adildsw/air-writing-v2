@@ -1,15 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-Air-Writing Data Generator.
+Air-Writing v2
 
-Base Code Details:
-Created on Wed May  9 22:00:00 2018
-Author: Prasun Roy | CVPRU-ISICAL (http://www.isical.ac.in/~cvpr)
-GitHub: https://github.com/prasunroy/air-writing
-
-Modified Code for Data Generation:
 Created on Wed June 12 12:00:00 2019
-Author: Adil Rahman 
+Author: Adil Rahman | CVPR Unit - ISI Kolkata (http://www.isical.ac.in/~cvpr)
+GitHub: https://github.com/adildsw/air-writing-v2
 
 """
 
@@ -17,10 +12,11 @@ import sys
 import os
 import webbrowser
 import cv2
+import numpy
 
 from PyQt5.QtCore import Qt, QTimer, QSize
 from PyQt5.QtGui import QIcon, QImage, QPixmap
-from PyQt5.QtWidgets import QApplication, QFrame, QWidget
+from PyQt5.QtWidgets import QApplication, QFrame, QWidget, QFileDialog, QMessageBox
 from PyQt5.QtWidgets import QGridLayout, QHBoxLayout, QVBoxLayout
 from PyQt5.QtWidgets import QDesktopWidget, QLabel, QPushButton
 
@@ -64,10 +60,19 @@ class MainGUI(QWidget):
         # create widgets
         # -- connect camera button --
         self.btn_conn = QPushButton('Connect Camera')
-        self.btn_conn.setMinimumSize(350, 40)
+        self.btn_conn.setMinimumSize(300, 40)
         self.btn_conn_style_0 = 'QPushButton {background-color: #00a86c; border: none; color: #ffffff; font-family: ubuntu, arial; font-size: 16px;}'
         self.btn_conn_style_1 = 'QPushButton {background-color: #ff6464; border: none; color: #ffffff; font-family: ubuntu, arial; font-size: 16px;}'
         self.btn_conn.setStyleSheet(self.btn_conn_style_0)
+        
+        # -- connect file button --
+        self.btn_file = QPushButton()
+        self.btn_file.setMinimumSize(50, 40)
+        self.btn_file_style_0 = 'QPushButton {background-color: #f1c40f; border: none; color: #ffffff; font-family: ubuntu, arial; font-size: 16px;}'
+        self.btn_file_style_1 = 'QPushButton {background-color: #e67e22; border: none; color: #ffffff; font-family: ubuntu, arial; font-size: 16px;}'
+        self.btn_file.setStyleSheet(self.btn_file_style_0)
+        self.btn_file.setIcon(QIcon('assets/file.png'))
+        self.btn_file.setIconSize(QSize(30, 30))
         
         # -- connect calibration button --
         self.btn_cal = QPushButton()
@@ -161,6 +166,7 @@ class MainGUI(QWidget):
         # create layouts
         h_box1 = QHBoxLayout()
         h_box1.addWidget(self.btn_conn)
+        h_box1.addWidget(self.btn_file)
         h_box1.addWidget(self.btn_cal)
         
         h_box2 = QHBoxLayout()
@@ -215,6 +221,7 @@ class MainGUI(QWidget):
         self.trace_img = None
         
         self.btn_conn.clicked.connect(self.connect) 
+        self.btn_file.clicked.connect(self.openFile)
         self.btn_cal.clicked.connect(self.calibrate)
         self.btn_repo.clicked.connect(self.openRepository)
         
@@ -236,6 +243,12 @@ class MainGUI(QWidget):
                     self.progressCount = 1
                     self.textProgress = str(self.progressCount) + '/5'
                     self.calibrate()
+                    
+                    msg = QMessageBox()
+                    msg.setIcon(QMessageBox.Information)
+                    msg.setText("Calibration Successful")
+                    msg.setWindowTitle("Success")
+                    msg.exec_()
         else:
             super().keyPressEvent(qKeyEvent)
     
@@ -297,14 +310,14 @@ class MainGUI(QWidget):
             self.cam_feed.setPixmap(QPixmap.fromImage(frame))
             if not trace is None and not bi == []:
                 self.trace_img = trace
-                self.result_main_label = 'Predicted Value(s): ' + str(bi)
+                self.result_main_label = 'Predicted Value(s): ' + str(fwd)
                 if not str(fwd) == str(bi):
-                    self.result_alt1_label = 'Alternate Value(s) #1: ' + str(fwd)
+                    self.result_alt1_label = 'Alternate Value(s) #1: ' + str(bi)
                     if not str(rev) == str(bi) and not str(rev) == str(fwd):
                         self.result_alt2_label = 'Alternate Value(s) #2: ' + str(rev)
                     else:
                         self.result_alt2_label = 'Alternate Value(s) #2: NA'
-                elif not str(rev) == str(bi):
+                elif not str(rev) == str(fwd):
                     self.result_alt1_label = 'Alternate Value(s) #1: ' + str(rev)
                     self.result_alt2_label = 'Alternate Value(s) #2: NA'
                 else:
@@ -350,6 +363,63 @@ class MainGUI(QWidget):
         self.configColor = self.configColor[::-1]
         self.calibrator = None
             
+        return
+    
+    def openFile(self):
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        fileName, _ = QFileDialog.getOpenFileName(self,"Open Saved Character Co-ordinate File", "","Numpy Files (*.npy)", options=options)
+        if fileName:
+            pts = numpy.load(fileName)
+            if not len(pts.shape) == 2:
+                msg = QMessageBox()
+                msg.setIcon(QMessageBox.Critical)
+                msg.setText("Incorrect File Loaded")
+                msg.setWindowTitle("Error")
+                msg.exec_()
+            elif not pts.shape[1] == 2:
+                msg = QMessageBox()
+                msg.setIcon(QMessageBox.Critical)
+                msg.setText("Incorrect File Loaded")
+                msg.setWindowTitle("Error")
+                msg.exec_()
+            else:
+                self.readPts(pts)
+        
+        return
+    
+    def readPts(self, pts):
+        trace, bi, fwd, rev = self.pipeline.run_inference_file(pts)
+        if not trace is None and not bi == []:
+            self.trace_img = trace
+            self.result_main_label = 'Predicted Value(s): ' + str(bi)
+            if not str(fwd) == str(bi):
+                self.result_alt1_label = 'Alternate Value(s) #1: ' + str(fwd)
+                if not str(rev) == str(bi) and not str(rev) == str(fwd):
+                    self.result_alt2_label = 'Alternate Value(s) #2: ' + str(rev)
+                else:
+                    self.result_alt2_label = 'Alternate Value(s) #2: NA'
+            elif not str(rev) == str(bi):
+                self.result_alt1_label = 'Alternate Value(s) #1: ' + str(rev)
+                self.result_alt2_label = 'Alternate Value(s) #2: NA'
+            else:
+                self.result_alt1_label = 'Alternate Value(s) #1: NA'
+                self.result_alt2_label = 'Alternate Value(s) #2: NA'
+        
+            toolTipString = 'Bi-directional Scan: ' + str(bi) + '\n' + 'Forward Scan: ' + str(fwd) + '\n' + 'Reverse Scan: ' + str(rev)
+            self.result_label.setToolTip(toolTipString)
+        else:
+            self.result_label.setToolTip('')
+                
+        
+        if not self.trace_img is None:
+            trace_img_disp = QImage(self.trace_img, self.trace_img.shape[1], self.trace_img.shape[0], self.trace_img.strides[0], QImage.Format_RGB888)
+            self.trace_disp.setPixmap(QPixmap.fromImage(trace_img_disp))
+            
+            self.result_main.setText(self.result_main_label)
+            self.result_alt1.setText(self.result_alt1_label)
+            self.result_alt2.setText(self.result_alt2_label)
+        
         return
     
     def openRepository(self):

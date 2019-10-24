@@ -21,7 +21,7 @@ import os
 import re
 import json
 
-from predictor import predict_v3 as predict
+from predictor import runPredictor
 
 class Pipeline(object):
     
@@ -83,7 +83,7 @@ class Pipeline(object):
             maskHSV_new = cv2.inRange(frame_HSV, self._minHSV[i], self._maxHSV[i])
             maskHSV = maskHSV | maskHSV_new
         mask = cv2.medianBlur(maskHSV, 9)
-        mask = cv2.dilate(mask, (9, 9))
+        mask = cv2.dilate(mask, (15, 15))
         
         return mask
     
@@ -204,8 +204,28 @@ class Pipeline(object):
         
         return frame, trace_img, bi, fwd, rev
     
+    def run_inference_file(self, pts):
+        bi = []
+        fwd = []
+        rev = []
+        
+        trace_img = None
+            
+        trace_img = 255 * numpy.ones(shape = (640, 480), dtype=numpy.uint8)
+        trace_img = self._render(trace_img, ctr_draw = False, black = True)
+        trace_img = cv2.resize(trace_img, self._resizeDim, interpolation = cv2.INTER_AREA)
+        
+        try:
+            bi, fwd, rev = self.predict_data(pts)
+        except:
+            bi = []
+            fwd = []
+            rev = []
+        
+        return trace_img, bi, fwd, rev
+    
     def predict_data(self, points):
-        if len(points) > 10:
+        if len(points) > 3:
             if not os.path.exists('generated_data/'):
                 os.mkdir('generated_data/')
             if not os.path.exists('generated_data/segmented/'):
@@ -234,6 +254,6 @@ class Pipeline(object):
                 c = c + 1
             numpy.save('generated_data/' + str(c) + '_' + str(len(points)) + '.npy', points)
         
-            bi, fwd, rev = predict('generated_data/' + str(c) + '_' + str(len(points)) + '.npy')
+            bi, fwd, rev = runPredictor('generated_data/' + str(c) + '_' + str(len(points)) + '.npy')
             
             return bi, fwd, rev

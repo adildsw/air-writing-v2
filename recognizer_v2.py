@@ -10,9 +10,6 @@ os.environ["MKL_THREADING_LAYER"] = "GNU"
 import cv2
 import numpy
 import tensorflow as tf
-from keras import backend
-
-#backend.set_image_dim_ordering('tf')
 
 class Recognizer(object):
     
@@ -25,7 +22,6 @@ class Recognizer(object):
         
         self._opencv_version = int(cv2.__version__.split('.')[0])
         
-#        self._model_mnist = tf.keras.models.load_model('models/lstm_modified_mnist.model')
         self._model_mnist = tf.keras.models.load_model('models/lstm_mnist_air_new.model')
         self._model_binary = tf.keras.models.load_model('models/lstm_modified_noclass_binary.model')
         
@@ -97,7 +93,7 @@ class Recognizer(object):
             if ncp < 0.05:
                 prob = self._model_mnist.predict(image)
                 probmax = numpy.round(numpy.max(prob), 4)
-                if probmax > 0.97:
+                if probmax > 0.9:
                     predprobas.append(prob[0])
                     
         if predprobas:

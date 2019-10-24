@@ -9,25 +9,6 @@ Created on Mon Jun 10 14:47:18 2019
 import cv2
 import numpy
 
-def generate_buffer_v1(points, save_dir, index, padding=20, line_width=15):
-    assert type(points) is numpy.ndarray and len(points) > 1 and points.shape[1] == 2
-    
-    w, h = numpy.max(points, 0) - numpy.min(points, 0)
-    
-    points -= (numpy.min(points, 0) - padding)
-    
-    image = numpy.ones((h + 2 * padding, w + 2 * padding), numpy.uint8) * 255
-    
-    for i in range(2, len(points)):
-        working_copy = image.copy()
-        point_subset = points[:i]
-        
-        for j in range(len(point_subset) - 1):
-            cv2.line(image, tuple(point_subset[j]), tuple(point_subset[j+1]),
-                     0, line_width, cv2.LINE_AA)
-            
-        cv2.imwrite(save_dir + '/{}_{}.jpg'.format(index, i), working_copy)
-
 def generate_buffer_v3(points, save_dir, index, padding=30, line_width=15):
     assert type(points) is numpy.ndarray and len(points) > 1 and points.shape[1] == 2
     

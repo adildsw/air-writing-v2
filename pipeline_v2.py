@@ -21,7 +21,7 @@ import os
 import re
 import json
 
-from predictor import runPredictor
+from predictor_old import runPredictor
 
 class Pipeline(object):
     

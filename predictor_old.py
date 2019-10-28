@@ -11,13 +11,11 @@ import cv2
 import re
 import operator
 
-from frameGenerator import frameGenerator
+from buffer_generator import generate, generate_segmented_data
 from recognizer_v2 import Recognizer
 
 if not 'recognizer' in globals():
     recognizer = Recognizer()
-
-fg = frameGenerator()
 
 priority_matrix = []
 
@@ -161,7 +159,7 @@ def runPredictor(input_file):
     while index + 1 < len(points):
         temp_dir = fwd_temp_dir + str(index) + '/'
         os.makedirs(temp_dir)
-        fg.generate(points, temp_dir, index, buffer_size)
+        generate(points, temp_dir, index, buffer_size)
         ppool = prediction_pool(temp_dir)
         out = priority_filter(ppool)
         if out:
@@ -176,15 +174,7 @@ def runPredictor(input_file):
             store_res = out[0]
             store_save_dir = 'generated_data/segmented/fwd/' + str(store_res) + '/'
             store_dump_name = input_file[input_file.find('/') + 1 : input_file.rfind('_')]
-            
-            points_subset = points[index : (index + store_i) + 1]
-            frame = fg.generateFrame(points_subset)
-            frame_filename = '{}_{}_{}.jpg'.format(store_dump_name, store_index, store_i)
-            points_filename = '{}_{}_{}.npy'.format(store_dump_name, store_index, store_i)
-            frame_filepath = os.path.join(store_save_dir, frame_filename)
-            points_filepath = os.path.join(store_save_dir, points_filename)
-            cv2.imwrite(frame_filepath, frame)
-            numpy.save(points_filepath, points_subset)
+            generate_segmented_data(points, store_index, store_i, store_dump_name, store_save_dir)
         else:
             if index + 6 < len(points):
                 index = index + 5
@@ -205,7 +195,7 @@ def runPredictor(input_file):
     while index + 1 < len(rev_points):
         temp_dir = rev_temp_dir + str(index) + '/'
         os.makedirs(temp_dir)
-        fg.generate(rev_points, temp_dir, index, buffer_size)
+        generate(rev_points, temp_dir, index, buffer_size)
         ppool = prediction_pool(temp_dir)
         out = priority_filter(ppool)
         if out:
@@ -220,15 +210,7 @@ def runPredictor(input_file):
             store_res = out[0]
             store_save_dir = 'generated_data/segmented/rev/' + str(store_res) + '/'
             store_dump_name = input_file[input_file.find('/') + 1 : input_file.rfind('_')] + 'r'
-            
-            points_subset = points[index : (index + store_i) + 1]
-            frame = fg.generateFrame(points_subset)
-            frame_filename = '{}_{}_{}.jpg'.format(store_dump_name, store_index, store_i)
-            points_filename = '{}_{}_{}.npy'.format(store_dump_name, store_index, store_i)
-            frame_filepath = os.path.join(store_save_dir, frame_filename)
-            points_filepath = os.path.join(store_save_dir, points_filename)
-            cv2.imwrite(frame_filepath, frame)
-            numpy.save(points_filepath, points_subset)
+            generate_segmented_data(rev_points, store_index, store_i, store_dump_name, store_save_dir)
         else:
             if index + 6 < len(rev_points):
                 index = index + 5
@@ -239,8 +221,8 @@ def runPredictor(input_file):
     full_result.append(result)
     print('Reverse Check: ', result)
     
-#    if os.path.exists(main_temp_dir):
-#        shutil.rmtree(main_temp_dir)
+    if os.path.exists(main_temp_dir):
+        shutil.rmtree(main_temp_dir)
         
     #~~~~~~~~~~~Result Cleanup~~~~~~~~~~~
     fwd_res = []

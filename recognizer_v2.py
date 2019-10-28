@@ -17,12 +17,13 @@ class Recognizer(object):
         self._i_shape = (1, 28, 28)
         self._b_shape = (1, 22, 22)
         
-        self._min_size = 150
+        self._min_size = 120
         self._d_kernel = (3, 3)
         
         self._opencv_version = int(cv2.__version__.split('.')[0])
         
-        self._model_mnist = tf.keras.models.load_model('models/lstm_mnist_air_new.model')
+        self._model_mnist = tf.keras.models.load_model('models/lstm_mnist_air_pen_final.model')
+        #self._model_mnist = tf.keras.models.load_model('models/lstm_mnist_air_new.model')
         self._model_binary = tf.keras.models.load_model('models/lstm_modified_noclass_binary.model')
         
         return
@@ -93,7 +94,7 @@ class Recognizer(object):
             if ncp < 0.05:
                 prob = self._model_mnist.predict(image)
                 probmax = numpy.round(numpy.max(prob), 4)
-                if probmax > 0.9:
+                if probmax > 0.95:
                     predprobas.append(prob[0])
                     
         if predprobas:

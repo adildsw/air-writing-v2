@@ -23,8 +23,9 @@ class Recognizer(object):
         self._opencv_version = int(cv2.__version__.split('.')[0])
         
         self._model_mnist = tf.keras.models.load_model('models/lstm_mnist_air_pen_final.model')
+        self._model_binary = tf.keras.models.load_model('models/lstm_noise_final.model')
         #self._model_mnist = tf.keras.models.load_model('models/lstm_mnist_air_new.model')
-        self._model_binary = tf.keras.models.load_model('models/lstm_modified_noclass_binary.model')
+#        self._model_binary = tf.keras.models.load_model('models/lstm_modified_noclass_binary.model')
         
         return
     
@@ -91,7 +92,7 @@ class Recognizer(object):
             
             noclassprob = self._model_binary.predict(image)
             ncp = noclassprob[0][1]
-            if ncp < 0.05:
+            if ncp < 0.6:
                 prob = self._model_mnist.predict(image)
                 probmax = numpy.round(numpy.max(prob), 4)
                 if probmax > 0.95:

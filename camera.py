@@ -10,14 +10,18 @@ GitHub: https://github.com/prasunroy/air-writing
 
 # imports
 import cv2
-
+import psutil
 
 # VideoStream class
 class VideoStream(object):
     
     # ~~~~~~~~ constructor ~~~~~~~~
     def __init__(self, src=0):
-        self.video = cv2.VideoCapture(src)
+        if psutil.WINDOWS:
+            self.video = cv2.VideoCapture(src, cv2.CAP_DSHOW)
+        else:
+            self.video = cv2.VideoCapture(src)
+        
         self.setFrameSize((640, 480))
         
         return

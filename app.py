@@ -60,7 +60,7 @@ class MainGUI(QWidget):
         # create widgets
         # -- connect camera button --
         self.btn_conn = QPushButton('Connect Camera')
-        self.btn_conn.setMinimumSize(300, 40)
+        self.btn_conn.setMinimumSize(350, 40)
         self.btn_conn_style_0 = 'QPushButton {background-color: #00a86c; border: none; color: #ffffff; font-family: ubuntu, arial; font-size: 16px;}'
         self.btn_conn_style_1 = 'QPushButton {background-color: #ff6464; border: none; color: #ffffff; font-family: ubuntu, arial; font-size: 16px;}'
         self.btn_conn.setStyleSheet(self.btn_conn_style_0)
@@ -166,7 +166,7 @@ class MainGUI(QWidget):
         # create layouts
         h_box1 = QHBoxLayout()
         h_box1.addWidget(self.btn_conn)
-        h_box1.addWidget(self.btn_file)
+#        h_box1.addWidget(self.btn_file)
         h_box1.addWidget(self.btn_cal)
         
         h_box2 = QHBoxLayout()
@@ -221,7 +221,7 @@ class MainGUI(QWidget):
         self.trace_img = None
         
         self.btn_conn.clicked.connect(self.connect) 
-        self.btn_file.clicked.connect(self.openFile)
+#        self.btn_file.clicked.connect(self.openFile)
         self.btn_cal.clicked.connect(self.calibrate)
         self.btn_repo.clicked.connect(self.openRepository)
         
@@ -310,14 +310,14 @@ class MainGUI(QWidget):
             self.cam_feed.setPixmap(QPixmap.fromImage(frame))
             if not trace is None and not bi == []:
                 self.trace_img = trace
-                self.result_main_label = 'Predicted Value(s): ' + str(fwd)
+                self.result_main_label = 'Predicted Value(s): ' + str(bi)
                 if not str(fwd) == str(bi):
-                    self.result_alt1_label = 'Alternate Value(s) #1: ' + str(bi)
+                    self.result_alt1_label = 'Alternate Value(s) #1: ' + str(fwd)
                     if not str(rev) == str(bi) and not str(rev) == str(fwd):
                         self.result_alt2_label = 'Alternate Value(s) #2: ' + str(rev)
                     else:
                         self.result_alt2_label = 'Alternate Value(s) #2: NA'
-                elif not str(rev) == str(fwd):
+                elif not str(rev) == str(bi):
                     self.result_alt1_label = 'Alternate Value(s) #1: ' + str(rev)
                     self.result_alt2_label = 'Alternate Value(s) #2: NA'
                 else:

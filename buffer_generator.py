@@ -36,6 +36,19 @@ def generate_segmented_data(points, index, i, dump_name, save_dir, padding=30, l
     cv2.imwrite(save_dir + '/{}_{}_{}.jpg'.format(dump_name, index, i), image)
     
     numpy.save(save_dir + '/{}_{}_{}.npy'.format(dump_name, index, i), points)
+    
+def generate_data_image(points, start=0, end=0, padding=30, line_width=15):
+    end = end if end != 0 else len(points)
+    points = points[start : end]
+    point_subset = points
+    point_subset = point_subset - (numpy.min(point_subset, 0) -padding)
+    w, h = numpy.max(points, 0) - numpy.min(points, 0)
+    
+    image = numpy.ones((int(h) + 2 * padding, int(w) + 2 * padding), numpy.uint8) * 255
+    for j in range(len(points) - 1):
+        cv2.line(image, tuple(point_subset[j]), tuple(point_subset[j+1]), 0, line_width, cv2.LINE_AA)
+    
+    return image
 
 def generate(points, save_dir, index=0, buffer_size=50):
     points = points[index:(index + buffer_size)]

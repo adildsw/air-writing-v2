@@ -7,9 +7,19 @@ Author: Adil Rahman
 import os
 os.environ["MKL_THREADING_LAYER"] = "GNU"
 
+import logging
+logging.getLogger('tensorflow').disabled = True
+
 import cv2
 import numpy
 import tensorflow as tf
+
+from keras.backend.tensorflow_backend import set_session
+config = tf.ConfigProto()
+config.gpu_options.allow_growth = True
+
+sess = tf.Session(config=config)
+set_session(sess)
 
 class Recognizer(object):
     
@@ -22,10 +32,14 @@ class Recognizer(object):
         
         self._opencv_version = int(cv2.__version__.split('.')[0])
         
-        self._model_mnist = tf.keras.models.load_model('models/lstm_mnist_air_pen_final.model')
-        self._model_binary = tf.keras.models.load_model('models/lstm_noise_final.model')
-        #self._model_mnist = tf.keras.models.load_model('models/lstm_mnist_air_new.model')
-#        self._model_binary = tf.keras.models.load_model('models/lstm_modified_noclass_binary.model')
+        self._model_numeric_id = 'TS-D'
+#        self._model_numeric = tf.keras.models.load_model('models/lstm_mnist_air_pen_final.model')
+#        self._model_binary = tf.keras.models.load_model('models/lstm_noise_final.model')
+        self._model_numeric = tf.keras.models.load_model('models/TS-D.model')
+        self._model_binary = tf.keras.models.load_model('models/NZ-2.model')
+        
+        preload_img = cv2.imread('preload')
+        self.predict(preload_img, 'TS-D')
         
         return
     
@@ -62,7 +76,22 @@ class Recognizer(object):
         
         return image
     
-    def predict(self, image):
+    def _model_switch(self, model):
+        if model != self._model_numeric_id:
+            self._model_numeric_id = model
+            if model == 'TS-A':
+                self._model_numeric = tf.keras.models.load_model('models/TS-A.model')
+            elif model == 'TS-B':
+                self._model_numeric = tf.keras.models.load_model('models/TS-B.model')
+            elif model == 'TS-C':
+                self._model_numeric = tf.keras.models.load_model('models/TS-C.model')
+            elif model == 'TS-D':
+                self._model_numeric = tf.keras.models.load_model('models/TS-D.model')
+#                self._model_numeric = tf.keras.models.load_model('models/lstm_mnist_air_pen_final.model')
+                
+    def predict(self, image, model):
+        self._model_switch(model)
+        
         image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         image = cv2.bitwise_not(image)
         
@@ -93,7 +122,7 @@ class Recognizer(object):
             noclassprob = self._model_binary.predict(image)
             ncp = noclassprob[0][1]
             if ncp < 0.6:
-                prob = self._model_mnist.predict(image)
+                prob = self._model_numeric.predict(image)
                 probmax = numpy.round(numpy.max(prob), 4)
                 if probmax > 0.95:
                     predprobas.append(prob[0])

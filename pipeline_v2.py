@@ -21,7 +21,7 @@ import os
 import re
 import json
 
-from predictor_old import runPredictor
+from predictor_v2 import runPredictor
 
 class Pipeline(object):
     
@@ -224,7 +224,7 @@ class Pipeline(object):
         
         return trace_img, bi, fwd, rev
     
-    def predict_data(self, points):
+    def predict_data(self, points, model='TS-D', frameskip=4):
         if len(points) > 3:
             if not os.path.exists('generated_data/'):
                 os.mkdir('generated_data/')
@@ -250,10 +250,12 @@ class Pipeline(object):
                 c = int(c)
                 c = c + 1
             
-            while os.path.isfile('generated_data/' + str(c) + '_' + str(len(points)) + '.npy'):
+            pred_file = 'generated_data/{}_{}.npy'.format(c, len(points))
+            
+            while os.path.isfile(pred_file):
                 c = c + 1
-            numpy.save('generated_data/' + str(c) + '_' + str(len(points)) + '.npy', points)
+            numpy.save(pred_file, points)
         
-            bi, fwd, rev = runPredictor('generated_data/' + str(c) + '_' + str(len(points)) + '.npy')
+            bi, fwd, rev = runPredictor(pred_file, model, frameskip)
             
             return bi, fwd, rev

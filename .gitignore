@@ -1,5 +1,5 @@
 generated_data/
 __pycache__
-.ipnyb_checkpoints
+.ipynb_checkpoints
 
 config.json

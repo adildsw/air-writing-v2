@@ -1,2 +1,0 @@
-x_test.npy filter=lfs diff=lfs merge=lfs -text
-x_train.npy filter=lfs diff=lfs merge=lfs -text

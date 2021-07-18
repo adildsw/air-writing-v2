@@ -14,11 +14,11 @@ import cv2
 import numpy
 import tensorflow as tf
 
-from keras.backend.tensorflow_backend import set_session
-config = tf.ConfigProto()
+from tensorflow.compat.v1.keras.backend import set_session
+config = tf.compat.v1.ConfigProto()
 config.gpu_options.allow_growth = True
 
-sess = tf.Session(config=config)
+sess = tf.compat.v1.Session(config=config)
 set_session(sess)
 
 class Recognizer(object):
